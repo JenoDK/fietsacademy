@@ -5,9 +5,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import be.vdab.enums.Geslacht;
 
 @Entity
 @Table(name = "docenten")
@@ -20,6 +24,8 @@ public class Docent implements Serializable {
 	private String familienaam;
 	private BigDecimal wedde;
 	private long rijksRegisterNr;
+	@Enumerated(EnumType.STRING)
+	private Geslacht geslacht;
 
 	public long getId() {
 		return id;
@@ -39,6 +45,10 @@ public class Docent implements Serializable {
 
 	public long getRijksRegisterNr() {
 		return rijksRegisterNr;
+	}
+	
+	public Geslacht getGeslacht() {
+		return geslacht;
 	}
 
 	public void opslag(BigDecimal percentage) {
