@@ -17,6 +17,7 @@ import javax.servlet.annotation.WebFilter;
 public class JPAFilter implements Filter {
 	private static final EntityManagerFactory entityManagerFactory = Persistence
 			.createEntityManagerFactory("fietsacademy");
+	private static final ThreadLocal<EntityManager> entityManagers = new ThreadLocal<>();
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -25,8 +26,18 @@ public class JPAFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
-		chain.doFilter(request, response);
+		entityManagers.set(entityManagerFactory.createEntityManager());
+		try {
+			request.setCharacterEncoding("UTF-8");
+			chain.doFilter(request, response);
+		} finally {
+			EntityManager entityManager = entityManagers.get();
+			if (entityManager.getTransaction().isActive()) {
+				entityManager.getTransaction().rollback();
+			}
+			entityManager.close();
+			entityManagers.remove();
+		}
 	}
 
 	@Override
@@ -35,6 +46,6 @@ public class JPAFilter implements Filter {
 	}
 
 	public static EntityManager getEntityManager() {
-		return entityManagerFactory.createEntityManager();
+		return entityManagers.get();
 	}
 }

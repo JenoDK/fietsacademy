@@ -1,33 +1,29 @@
 package be.vdab.servlets.docenten;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import be.vdab.services.DocentService;
 
-@WebServlet("/docenten/zoeken.htm")
-public class ZoekenServlet extends HttpServlet {
+/**
+ * Servlet implementation class VanTotWeddeServlet
+ */
+@WebServlet("/docenten/vantotwedde.htm")
+public class VanTotWeddeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String VIEW = "/WEB-INF/JSP/docenten/zoeken.jsp";
-	private final transient DocentService docentService = new DocentService();
+	private static final String VIEW = "/WEB-INF/JSP/docenten/vantotwedde.jsp";
+	private final DocentService docentService = new DocentService();
 
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		if (request.getQueryString() != null) {
-			try {
-				request.setAttribute("docent", docentService.read(Long
-						.parseLong(request.getParameter("id"))));
-			} catch (NumberFormatException ex) {
-				request.setAttribute("fouten",
-						Collections.singletonMap("id", "tik een getal"));
-			}
-		}
+		request.setAttribute("docenten",
+				docentService.findByWeddeBetween(null, null));
 		request.getRequestDispatcher(VIEW).forward(request, response);
 	}
 
