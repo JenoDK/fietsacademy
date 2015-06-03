@@ -3,12 +3,19 @@ package be.vdab.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
 import be.vdab.enums.Geslacht;
@@ -17,6 +24,10 @@ import be.vdab.enums.Geslacht;
 @Table(name = "docenten")
 public class Docent implements Serializable {
 	private static final long serialVersionUID = 1L;
+	@ElementCollection
+	@CollectionTable(name = "docentenbijnamen", joinColumns = @JoinColumn(name = "docentid"))
+	@Column(name = "Bijnaam")
+	private Set<String> bijnamen;
 	@Id
 	@GeneratedValue
 	private long id;
@@ -29,6 +40,7 @@ public class Docent implements Serializable {
 
 	public Docent(String voornaam, String familienaam, BigDecimal wedde,
 			Geslacht geslacht, long rijksRegisterNr) {
+		bijnamen = new HashSet<>();
 		setVoornaam(voornaam);
 		setFamilienaam(familienaam);
 		setWedde(wedde);
@@ -37,6 +49,18 @@ public class Docent implements Serializable {
 	}
 
 	protected Docent() {
+	}
+
+	public Set<String> getBijnamen() {
+		return Collections.unmodifiableSet(bijnamen);
+	}
+
+	public void addBijnaam(String bijnaam) {
+		bijnamen.add(bijnaam);
+	}
+
+	public void removeBijnaam(String bijnaam) {
+		bijnamen.remove(bijnaam);
 	}
 
 	public static boolean isVoornaamValid(String voornaam) {
