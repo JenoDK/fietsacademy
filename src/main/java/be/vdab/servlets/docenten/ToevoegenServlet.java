@@ -15,6 +15,7 @@ import be.vdab.entities.Docent;
 import be.vdab.services.CampusService;
 import be.vdab.services.DocentService;
 import be.vdab.enums.Geslacht;
+import be.vdab.exceptions.DocentBestaatAlException;
 
 @WebServlet("/docenten/toevoegen.htm")
 public class ToevoegenServlet extends HttpServlet {
@@ -73,10 +74,16 @@ public class ToevoegenServlet extends HttpServlet {
 		if (fouten.isEmpty()) {
 			Docent docent = new Docent(voornaam, familienaam, wedde,
 					Geslacht.valueOf(geslacht), rijksRegisterNr);
-			docentService.create(docent);
-			response.sendRedirect(response.encodeRedirectURL(String.format(
-					REDIRECT_URL, request.getContextPath(), docent.getId())));
-		} else {
+			docent.setCampus(campusService.read(Long.parseLong(campusId)));
+			try {
+				docentService.create(docent);
+				response.sendRedirect(response.encodeRedirectURL(String.format(
+						REDIRECT_URL, request.getContextPath(), docent.getId())));
+			} catch (DocentBestaatAlException ex) {
+				fouten.put("rijksregisternr", "bestaat al");
+			}
+		}
+		if (!fouten.isEmpty()) {
 			request.setAttribute("fouten", fouten);
 			request.setAttribute("campussen", campusService.findAll());
 			request.getRequestDispatcher(VIEW).forward(request, response);

@@ -39,17 +39,25 @@ public class Docent implements Serializable {
 	private long rijksRegisterNr;
 	@Enumerated(EnumType.STRING)
 	private Geslacht geslacht;
-//	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-//	@JoinColumn(name = "campusid")
-//	private Campus campus;
-//
-//	public Campus getCampus() {
-//		return campus;
-//	}
-//
-//	public void setCampus(Campus campus) {
-//		this.campus = campus;
-//	}
+
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "campusid")
+	private Campus campus;
+
+	public Campus getCampus() {
+		return campus;
+	}
+
+	public void setCampus(Campus campus) {
+		if (this.campus != null && this.campus.getDocenten().contains(this)) {
+			this.campus.removeDocent(this);
+		}
+		this.campus = campus;
+		if (campus != null && !campus.getDocenten().contains(this)) {
+			campus.addDocent(this);
+			
+		}
+	}
 
 	public Docent(String voornaam, String familienaam, BigDecimal wedde,
 			Geslacht geslacht, long rijksRegisterNr) {
@@ -160,5 +168,18 @@ public class Docent implements Serializable {
 
 	public String getNaam() {
 		return voornaam + ' ' + familienaam;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Docent)) {
+			return false;
+		}
+		return ((Docent) obj).rijksRegisterNr == rijksRegisterNr;
+	}
+
+	@Override
+	public int hashCode() {
+		return Long.valueOf(rijksRegisterNr).hashCode();
 	}
 }

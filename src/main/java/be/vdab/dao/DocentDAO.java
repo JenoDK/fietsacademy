@@ -3,6 +3,8 @@ package be.vdab.dao;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import be.vdab.entities.Docent;
 import be.vdab.valueobjects.AantalDocentenPerWedde;
 import be.vdab.valueobjects.VoornaamEnId;
@@ -55,5 +57,17 @@ public class DocentDAO extends AbstractDAO {
 	public void algemeneOpslag(BigDecimal factor) {
 		getEntityManager().createNamedQuery("Docent.algemeneOpslag")
 				.setParameter("factor", factor).executeUpdate();
+	}
+
+	public Docent findByRijksRegisterNr(long rijksRegisterNr) {
+		try {
+			return getEntityManager()
+					.createNamedQuery("Docent.findByRijksRegisterNr",
+							Docent.class)
+					.setParameter("rijksRegisterNr", rijksRegisterNr)
+					.getSingleResult();
+		} catch (NoResultException ex) {
+			return null;
+		}
 	}
 }

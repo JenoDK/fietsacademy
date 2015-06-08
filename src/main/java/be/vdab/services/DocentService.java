@@ -5,6 +5,7 @@ import java.util.List;
 
 import be.vdab.dao.DocentDAO;
 import be.vdab.entities.Docent;
+import be.vdab.exceptions.DocentBestaatAlException;
 import be.vdab.valueobjects.AantalDocentenPerWedde;
 import be.vdab.valueobjects.VoornaamEnId;
 
@@ -16,6 +17,9 @@ public class DocentService {
 	}
 
 	public void create(Docent docent) {
+		if (docentDAO.findByRijksRegisterNr(docent.getRijksRegisterNr()) != null) {
+			throw new DocentBestaatAlException();
+		}
 		docentDAO.beginTransaction();
 		docentDAO.create(docent);
 		docentDAO.commit();

@@ -33,8 +33,7 @@ public class Campus implements Serializable {
 	@CollectionTable(name = "campussentelefoonnrs", joinColumns = @JoinColumn(name = "campusid"))
 	@OrderBy("fax")
 	private Set<TelefoonNr> telefoonNrs;
-	@OneToMany
-	@JoinColumn(name = "campusid")
+	@OneToMany(mappedBy = "campus")
 	@OrderBy("voornaam, familienaam")
 	private Set<Docent> docenten;
 
@@ -44,10 +43,16 @@ public class Campus implements Serializable {
 
 	public void addDocent(Docent docent) {
 		docenten.add(docent);
+		if (docent.getCampus() != this) {
+			docent.setCampus(this);
+		}
 	}
 
 	public void removeDocent(Docent docent) {
 		docenten.remove(docent);
+		if (docent.getCampus() == this) {
+			docent.setCampus(null);
+		}
 	}
 
 	public long getId() {
