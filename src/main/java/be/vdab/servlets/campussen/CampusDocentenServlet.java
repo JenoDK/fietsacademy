@@ -9,12 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import be.vdab.services.CampusService;
+import be.vdab.services.DocentService;
 
 @WebServlet("/campussen/docenten.htm")
 public class CampusDocentenServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String VIEW = "/WEB-INF/JSP/campussen/docenten.jsp";
 	private final transient CampusService campusService = new CampusService();
+	private final transient DocentService docentService = new DocentService();
 
 	@Override
 	protected void doGet(HttpServletRequest request,
@@ -24,6 +26,10 @@ public class CampusDocentenServlet extends HttpServlet {
 		if (id != null) {
 			request.setAttribute("campus",
 					campusService.read(Long.parseLong(id)));
+			if (request.getParameter("bestbetaalde") != null) {
+				request.setAttribute("docenten",
+				docentService.findBestBetaaldeVanEenCampus(Long.parseLong(id)));
+			}
 		}
 		request.getRequestDispatcher(VIEW).forward(request, response);
 	}

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.NoResultException;
 
+import be.vdab.entities.Campus;
 import be.vdab.entities.Docent;
 import be.vdab.valueobjects.AantalDocentenPerWedde;
 import be.vdab.valueobjects.VoornaamEnId;
@@ -29,8 +30,14 @@ public class DocentDAO extends AbstractDAO {
 			int vanafRij, int aantalRijen) {
 		return getEntityManager()
 				.createNamedQuery("Docent.findByWeddeBetween", Docent.class)
-				.setParameter("van", van).setParameter("tot", tot)
-				.setFirstResult(vanafRij).setMaxResults(aantalRijen)
+				.setParameter("van", van)
+				.setParameter("tot", tot)
+				.setFirstResult(vanafRij)
+				.setMaxResults(aantalRijen)
+				.setHint(
+						"javax.persistence.loadgraph",
+						getEntityManager()
+								.createEntityGraph("Docent.metCampus"))
 				.getResultList();
 	}
 
@@ -69,5 +76,12 @@ public class DocentDAO extends AbstractDAO {
 		} catch (NoResultException ex) {
 			return null;
 		}
+	}
+
+	public List<Docent> findBestBetaaldeVanEenCampus(Campus campus) {
+		return getEntityManager()
+				.createNamedQuery("Docent.findBestBetaaldeVanEenCampus",
+						Docent.class).setParameter("campus", campus)
+				.getResultList();
 	}
 }

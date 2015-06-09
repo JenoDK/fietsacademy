@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -17,13 +18,25 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 
 import be.vdab.enums.Geslacht;
 
 @Entity
 @Table(name = "docenten")
+@NamedEntityGraphs({
+		@NamedEntityGraph(name = "Docent.metCampus", attributeNodes = @NamedAttributeNode("campus")),
+		@NamedEntityGraph(name = "Docent.metCampusEnVerantwoordelijkheden", attributeNodes = {
+				@NamedAttributeNode("campus"),
+				@NamedAttributeNode("verantwoordelijkheden") }),
+		@NamedEntityGraph(name = "Docent.metCampusEnManager", attributeNodes = @NamedAttributeNode(value = "campus", subgraph = "metManager"), subgraphs = @NamedSubgraph(name = "metManager", attributeNodes = @NamedAttributeNode("manager"))) })
 public class Docent implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@ElementCollection
@@ -55,8 +68,32 @@ public class Docent implements Serializable {
 		this.campus = campus;
 		if (campus != null && !campus.getDocenten().contains(this)) {
 			campus.addDocent(this);
-			
+
 		}
+	}
+
+	@ManyToMany
+	@JoinTable(name = "docentenverantwoordelijkheden", joinColumns = @JoinColumn(name = "docentId"), inverseJoinColumns = @JoinColumn(name = "verantwoordelijkheidId"))
+	private Set<Verantwoordelijkheid> verantwoordelijkheden;
+
+	public void addVerantwoordelijkheid(
+			Verantwoordelijkheid verantwoordelijkheid) {
+		verantwoordelijkheden.add(verantwoordelijkheid);
+		if (!verantwoordelijkheid.getDocenten().contains(this)) {
+			verantwoordelijkheid.addDocent(this);
+		}
+	}
+
+	public void removeVerantwoordelijkheid(
+			Verantwoordelijkheid verantwoordelijkheid) {
+		verantwoordelijkheden.remove(verantwoordelijkheid);
+		if (verantwoordelijkheid.getDocenten().contains(this)) {
+			verantwoordelijkheid.removeDocent(this);
+		}
+	}
+
+	public Set<Verantwoordelijkheid> getVerantwoordelijkheden() {
+		return Collections.unmodifiableSet(verantwoordelijkheden);
 	}
 
 	public Docent(String voornaam, String familienaam, BigDecimal wedde,
@@ -67,6 +104,7 @@ public class Docent implements Serializable {
 		setWedde(wedde);
 		setGeslacht(geslacht);
 		setRijksRegisterNr(rijksRegisterNr);
+		verantwoordelijkheden = new LinkedHashSet<>();
 	}
 
 	protected Docent() {

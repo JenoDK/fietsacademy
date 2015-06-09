@@ -3,6 +3,7 @@ package be.vdab.services;
 import java.math.BigDecimal;
 import java.util.List;
 
+import be.vdab.dao.CampusDAO;
 import be.vdab.dao.DocentDAO;
 import be.vdab.entities.Docent;
 import be.vdab.exceptions.DocentBestaatAlException;
@@ -11,6 +12,7 @@ import be.vdab.valueobjects.VoornaamEnId;
 
 public class DocentService {
 	private final DocentDAO docentDAO = new DocentDAO();
+	private final CampusDAO campusDAO = new CampusDAO();
 
 	public Docent read(long id) {
 		return docentDAO.read(id);
@@ -75,5 +77,9 @@ public class DocentService {
 			docent.removeBijnaam(bijnaam);
 		}
 		docentDAO.commit();
+	}
+
+	public List<Docent> findBestBetaaldeVanEenCampus(long id) {
+		return docentDAO.findBestBetaaldeVanEenCampus(campusDAO.read(id));
 	}
 }
