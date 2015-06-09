@@ -35,7 +35,7 @@ public class DocentService {
 
 	public void opslag(long id, BigDecimal percentage) {
 		docentDAO.beginTransaction();
-		docentDAO.read(id).opslag(percentage);
+		docentDAO.readWithLock(id).opslag(percentage);
 		docentDAO.commit();
 	}
 
